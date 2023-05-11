@@ -1,9 +1,14 @@
 # coding=utf-8
+# from django.utils.encoding import force_text
+from django.db.models import Q
+from urllib.parse import unquote
 from requests import Response
 from rest_framework import generics
+
 from rest_framework.response import Response
-from .models import Vacancy
-from .serializers import VacancySerializer
+from .models import Vacancy, Category, TopVacancy, Region, Category
+from .serializers import VacancySerializer, CategorySerializer, TopVacancySerializer, \
+    RegionSerializer, CategorySerializer
 
 
 class VacancyList(generics.ListCreateAPIView):
@@ -11,17 +16,27 @@ class VacancyList(generics.ListCreateAPIView):
     serializer_class = VacancySerializer
 
     def get_queryset(self):
-        queryset = Vacancy.objects.all()
-        key1 = self.request.query_params.get('keyword')
-        location = self.request.query_params.get('location')
-        if key1 and location:
-            queryset = queryset.filter(Q(title__icontains=key1) | Q(description__icontains=key1),
-                                        location__icontains=location).order_by('-pub_date')
-        elif key1:
-            queryset = queryset.filter(Q(title__icontains=key1) | Q(description__icontains=key1)).order_by('-pub_date')
-        elif location:
-            queryset = queryset.filter(location__icontains=location).order_by('-pub_date')
-        return queryset
+        queryset = super().get_queryset()
+
+        keyword = self.request.query_params.get('keyword')
+        category_id = self.request.query_params.get('category')
+        region_id = self.request.query_params.get('region')
+
+        if keyword:
+            keyword = unquote(keyword)  # Декодирование URL-кодирования
+            queryset = queryset.filter(
+                Q(title__icontains=keyword) | Q(description__icontains=keyword)
+            )
+
+        if category_id:
+            category_id = unquote(category_id)
+            queryset = queryset.filter(category_id=category_id)
+
+        if region_id:
+            region_id = unquote(region_id)
+            queryset = queryset.filter(region_id=region_id)
+
+        return queryset.order_by('-pub_date')
 
 
 
@@ -42,3 +57,33 @@ class VacancyDetail(generics.RetrieveAPIView):
 class VacancyUpdate(generics.UpdateAPIView, generics.DestroyAPIView):
     queryset = Vacancy.objects.all()
     serializer_class = VacancySerializer
+
+
+# class CompanyList(generics.ListCreateAPIView):
+#     queryset = Vacancy.objects.all()
+#     serializer_class = CompanySerializer
+
+class CategoryList(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class CategoryDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class TopVacancyList(generics.ListCreateAPIView):
+    queryset = TopVacancy.objects.all()
+    serializer_class = TopVacancySerializer
+
+class TopVacancyDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
+    queryset = TopVacancy.objects.all()
+    serializer_class = TopVacancySerializer
+
+class RegionList(generics.ListCreateAPIView):
+    queryset = Region.objects.all()
+    serializer_class = RegionSerializer
+
+class RegionDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
+    queryset = Region.objects.all()
+    serializer_class = RegionSerializer
+

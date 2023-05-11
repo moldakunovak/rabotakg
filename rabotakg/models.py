@@ -3,6 +3,18 @@ from django.db import models
 from requests import Response
 
 
+class Region(models.Model):
+    title = models.CharField(max_length=50)
+    def __str__(self):
+        return self.title
+
+
+class Category(models.Model):
+    title = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.title
+
 class Vacancy(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -19,4 +31,12 @@ class Vacancy(models.Model):
 
     def __str__(self):
         return self.title
+
+class TopVacancy(models.Model):
+    vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE,
+                                    related_name='vacancy')
+
+
+    def __str__(self):
+        return self.vacancy.title
 
