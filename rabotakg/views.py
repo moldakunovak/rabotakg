@@ -12,13 +12,13 @@ class VacancyList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         queryset = Vacancy.objects.all()
-        keyword = self.request.query_params.get('keyword')
+        key1 = self.request.query_params.get('keyword')
         location = self.request.query_params.get('location')
-        if keyword and location:
-            queryset = queryset.filter(Q(title__icontains=keyword) | Q(description__icontains=keyword),
+        if key1 and location:
+            queryset = queryset.filter(Q(title__icontains=key1) | Q(description__icontains=key1),
                                         location__icontains=location).order_by('-pub_date')
-        elif keyword:
-            queryset = queryset.filter(Q(title__icontains=keyword) | Q(description__icontains=keyword)).order_by('-pub_date')
+        elif key1:
+            queryset = queryset.filter(Q(title__icontains=key1) | Q(description__icontains=key1)).order_by('-pub_date')
         elif location:
             queryset = queryset.filter(location__icontains=location).order_by('-pub_date')
         return queryset
