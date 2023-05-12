@@ -3,17 +3,22 @@
 from django.db.models import Q
 from urllib.parse import unquote
 from requests import Response
-from rest_framework import generics
-
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from rest_framework import generics, permissions
 from rest_framework.response import Response
+from .filters import VacancyFilter, CategoryFilter, RegionFilter
 from .models import Vacancy, Category, TopVacancy, Region, Category
 from .serializers import VacancySerializer, CategorySerializer, TopVacancySerializer, \
     RegionSerializer, CategorySerializer
 
-
 class VacancyList(generics.ListCreateAPIView):
     queryset = Vacancy.objects.all()
     serializer_class = VacancySerializer
+    permission_classes = [permissions.AllowAny]
+    filterset_class = VacancyFilter
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['title', 'vacancy_category__title', 'region__title']
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -45,6 +50,7 @@ class VacancyDetail(generics.RetrieveAPIView):
     queryset = Vacancy.objects.all()
     serializer_class = VacancySerializer
 
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         print(instance)
@@ -59,13 +65,13 @@ class VacancyUpdate(generics.UpdateAPIView, generics.DestroyAPIView):
     serializer_class = VacancySerializer
 
 
-# class CompanyList(generics.ListCreateAPIView):
-#     queryset = Vacancy.objects.all()
-#     serializer_class = CompanySerializer
 
 class CategoryList(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    filterset_class = CategoryFilter
 
 class CategoryDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
     queryset = Category.objects.all()
@@ -74,6 +80,7 @@ class CategoryDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generics.
 class TopVacancyList(generics.ListCreateAPIView):
     queryset = TopVacancy.objects.all()
     serializer_class = TopVacancySerializer
+    permission_classes = [permissions.AllowAny]
 
 class TopVacancyDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
     queryset = TopVacancy.objects.all()
@@ -82,6 +89,9 @@ class TopVacancyDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generic
 class RegionList(generics.ListCreateAPIView):
     queryset = Region.objects.all()
     serializer_class = RegionSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    filterset_class = RegionFilter
 
 class RegionDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
     queryset = Region.objects.all()

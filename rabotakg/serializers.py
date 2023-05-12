@@ -22,6 +22,8 @@ class TopVacancySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CategorySerializer(serializers.ModelSerializer):
+
+    # vacancy_category = serializers.CharField(source='vacancy_category.title')
     class Meta:
         model = Category
         fields = "__all__"

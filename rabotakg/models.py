@@ -17,12 +17,14 @@ class Category(models.Model):
 
 class Vacancy(models.Model):
     title = models.CharField(max_length=100)
+    vacancy_category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='vacancy', null=True)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='vacancy', blank=True, null=True)
     description = models.TextField()
     requirements = models.TextField(blank=True, null=True)
     company_name = models.CharField(max_length=200, blank=True, null=True)
     pub_date = models.DateField()
     view_count = models.PositiveIntegerField(default=0)
-    location = models.CharField(max_length=50)
+    location = models.CharField(max_length=50, blank=True, null=True)
     contact_info = models.TextField()
 
     # def increase_view_count(self):
